@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taimaz Web3 Ultimate | Official</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background:#000;
+    margin:0;
+    padding:0;
+    text-align:center;
+    color:#f5d26b;
+}
+
+header {
+    background:#111;
+    border-bottom:2px solid #d4af37;
+    padding:25px 0;
+}
+
+h1 {
+    color:#f5d26b;
+    font-size:36px;
+    margin:0;
+}
+
+h2 {
+    color:#d4af37;
+    margin-top:10px;
+}
+
+button {
+    background:#d4af37;
+    color:#000;
+    padding:12px 25px;
+    border:none;
+    border-radius:6px;
+    margin:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover {
+    background:#f5e08e;
+}
+
+input, textarea {
+    background:#111;
+    color:#f5d26b;
+    width:80%;
+    padding:10px;
+    border:1px solid #d4af37;
+    border-radius:5px;
+    margin-top:5px;
+}
+
+a {
+    color:#d4af37;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+.section { display:none; }
+
+#messages {
+    text-align:right;
+    max-width:600px;
+    margin:20px auto;
+    background:#111;
+    padding:15px;
+    border-radius:5px;
+    height:200px;
+    overflow-y:auto;
+    border:1px solid #d4af37;
+}
+.message {
+    background:#222;
+    padding:6px;
+    margin:5px 0;
+    border-right:3px solid #d4af37;
+    border-radius:4px;
+}
+
+#featuresList li {
+    list-style:none;
+    background:#111;
+    margin:8px 0;
+    padding:10px;
+    border-radius:5px;
+    border:1px solid #444;
+    cursor:pointer;
+    transition:0.3s;
+}
+#featuresList li.active {
+    border-color:#d4af37;
+    background:#1a1a1a;
+}
+#featuresList li:hover {
+    background:#222;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>وب۳ تایماز – نسخه نهایی</h1>
+<h2>Black & Gold Premium Edition</h2>
+</header>
+
+<main>
+
+<!-- ورود -->
+<div id="loginSection" class="section">
+<h2>اتصال کیف پول</h2>
+<p id="status">کیف پول متصل نیست</p>
+<button id="connectWalletBtn">اتصال MetaMask</button>
+
+<h2>ورود / ثبت‌نام</h2>
+<input type="text" id="usernameInput" placeholder="نام کاربری">
+<button id="loginBtn">ورود</button>
+</div>
+
+
+<!-- داشبورد -->
+<div id="dashboardSection" class="section">
+<h2>داشبورد طلایی</h2>
+
+<p id="walletDisplay">آدرس کیف پول: ---</p>
+<p id="userDisplay">نام کاربری: ---</p>
+
+<h3>افزونه‌ها / امکانات</h3>
+<ul id="featuresList"></ul>
+
+<h3>پیام‌ها</h3>
+<div id="messages"></div>
+
+<textarea id="messageInput" placeholder="پیام خود را بنویسید..."></textarea><br>
+<button id="sendMessageBtn">ارسال پیام</button>
+
+<br><br>
+<a href="#" id="upgradeLink">ارتقا حساب</a>
+<br><br>
+<button id="logoutBtn">خروج</button>
+</div>
+
+
+<!-- ارتقا -->
+<div id="upgradeSection" class="section">
+<h2>ارتقا VIP</h2>
+<p>امکانات ویژه قابل اتصال به قرارداد هوشمند:</p>
+<ul style="text-align:right;max-width:500px;margin:auto;">
+<li>✔ دسترسی ویژه</li>
+<li>✔ امکانات وب۳ پیشرفته</li>
+<li>✔ پیام‌رسان حرفه‌ای</li>
+</ul>
+
+<br>
+<a href="#" id="backToDashboard">بازگشت</a>
+</div>
+
+
+<script>
+// مدیریت صفحات
+function showSection(id){
+    document.querySelectorAll('.section').forEach(s => s.style.display='none');
+    document.getElementById(id).style.display='block';
+}
+
+// بارگذاری اولیه
+window.onload = () => {
+    const wallet = localStorage.getItem('wallet');
+    const user = localStorage.getItem('user');
+
+    if(wallet && user){
+        document.getElementById('walletDisplay').innerText = "آدرس کیف پول: " + wallet;
+        document.getElementById('userDisplay').innerText = "نام کاربری: " + user;
+
+        loadMessages();
+        loadFeatures();
+        showSection('dashboardSection');
+    } else {
+        showSection('loginSection');
+    }
+};
+
+// اتصال کیف‌پول
+document.getElementById('connectWalletBtn').onclick = async () => {
+    if(window.ethereum){
+        try{
+            const accounts = await ethereum.request({ method:'eth_requestAccounts' });
+            const account = accounts[0];
+            localStorage.setItem('wallet', account);
+
+            document.getElementById('status').innerText = "کیف پول متصل شد!";
+            alert("اتصال موفقیت‌آمیز");
+        }
+        catch(e){ alert("خطا در اتصال به MetaMask"); }
+    } else {
+        alert("MetaMask نصب نیست!");
+    }
+};
+
+// ورود
+document.getElementById('loginBtn').onclick = () => {
+    const username = document.getElementById('usernameInput').value.trim();
+    if(username){
+        localStorage.setItem('user', username);
+        showSection('dashboardSection');
+        loadMessages();
+        loadFeatures();
+    } else alert("نام کاربری وارد کنید");
+};
+
+// خروج
+document.getElementById('logoutBtn').onclick = () => {
+    localStorage.clear();
+    showSection('loginSection');
+};
+
+
+// پیام‌رسان
+function loadMessages(){
+    const list = JSON.parse(localStorage.getItem('messages') || '[]');
+    const box = document.getElementById('messages');
+    box.innerHTML='';
+
+    list.forEach(msg=>{
+        const div = document.createElement('div');
+        div.className='message';
+        div.innerText = msg.user + ": " + msg.text;
+        box.appendChild(div);
+    });
+
+    box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById('sendMessageBtn').onclick = () => {
+    const user = localStorage.getItem('user');
+    const text = document.getElementById('messageInput').value.trim();
+
+    if(!text) return;
+
+    const msgs = JSON.parse(localStorage.getItem('messages') || '[]');
+
+    msgs.push({ user, text });
+    localStorage.setItem('messages', JSON.stringify(msgs));
+
+    document.getElementById('messageInput').value='';
+    loadMessages();
+};
+
+
+// امکانات
+function loadFeatures(){
+    const list = document.getElementById('featuresList');
+    list.innerHTML='';
+
+    const features = [
+        {name:'نمایش کیف پول', active:true},
+        {name:'ارسال پیام', active:true},
+        {name:'اتصال وب۳', active:true},
+        {name:'حالت VIP', active:false}
+    ];
+
+    features.forEach((f,i)=>{
+        const li = document.createElement('li');
+        li.innerHTML = f.name;
+        if(f.active) li.classList.add('active');
+
+        li.onclick = () => {
+            li.classList.toggle('active');
+            features[i].active = !features[i].active;
+        };
+
+        list.appendChild(li);
+    });
+}
+
+
+// ارتقا
+document.getElementById('upgradeLink').onclick = () => showSection('upgradeSection');
+document.getElementById('backToDashboard').onclick = () => showSection('dashboardSection');
+</script>
+
+</body>
+</html>
